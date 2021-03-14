@@ -1,0 +1,44 @@
+#!/bin/bash
+# saveFix
+
+############################################################################
+#To make downloaded script executable run in folder with script:
+#	sudo cmod +x saveFix
+#Example:
+#	./saveFix previousGame.fsg "user1" "Louis XIV"
+#	# You will get previousGame_fixed.fsg in same folder.
+#	# Use it to start your previous multiplayer game.
+###########################################################################
+
+#FILENAME 
+fileName=$1
+echo $fileName
+
+#USERNAME TO REMOVE
+userNameToRemove=$2
+
+#NAME TO INSERT
+nameToInsert=$3
+
+#REMOVE EXTENTION
+nameLength=$((${#fileName}-4))
+
+newFileName=${fileName:0:nameLength}_fixed.fsg
+
+#UNZIP TO TEMP FOLDER
+unzip $fileName -d tempDir
+
+#READ FROM FILE
+xml=$(cat ./tempDir/savegame.xml)
+
+#SUBSTITUTE AND WRITE
+echo ${xml/$userNameToRemove/$nameToInsert} > ./tempDir/savegame.xml
+
+#MAKE NEW ARCHIVE
+zip -j tempZ ./tempDir/*
+
+#RENAME
+mv tempZ.zip $newFileName
+
+#REMOVE TEMPORARY FOLDER
+rm -r ./tempDir
